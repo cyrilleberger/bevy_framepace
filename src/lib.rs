@@ -82,8 +82,8 @@ impl Plugin for FramepacePlugin {
                 .insert_resource(limit)
                 .insert_resource(stats)
                 .add_systems(Main, framerate_limiter);
-        } else {
-            app.sub_app_mut(RenderApp)
+        } else if let Some(sub_app) = app.get_sub_app_mut(RenderApp) {
+            sub_app
                 .insert_resource(FrameTimer::default())
                 .insert_resource(settings_proxy)
                 .insert_resource(limit)
@@ -94,6 +94,9 @@ impl Plugin for FramepacePlugin {
                         .in_set(RenderSet::Cleanup)
                         .after(World::clear_entities),
                 );
+        } else {
+            app.insert_resource(FrameTimer::default())
+                .add_systems(Main, framerate_limiter);
         }
     }
 }
